@@ -1,127 +1,87 @@
 import streamlit as st
 import random
-import time
 
 # ============================================================
-# PLAYVERSE
-# All-in-One Mini Gaming Universe
-# Created by Rashpreet Kaur Arora
+# GAME HUB
+# Created by: Rashpreet Kaur Arora
 # ============================================================
 
 st.set_page_config(
-    page_title="PLAYVERSE",
+    page_title="FunZone Game Hub",
     page_icon="🎮",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="wide"
 )
 
 # ============================================================
-# CSS
+# CUSTOM CSS
 # ============================================================
 
 st.markdown("""
 <style>
+
 .stApp {
-    background:
-        radial-gradient(circle at 10% 10%, #ffd6e7 0%, transparent 25%),
-        radial-gradient(circle at 90% 10%, #c9f4ff 0%, transparent 25%),
-        radial-gradient(circle at 50% 90%, #e8d7ff 0%, transparent 30%),
-        linear-gradient(135deg, #fff7ed, #f5f3ff, #ecfeff);
+    background: linear-gradient(
+        135deg,
+        #fff1f2 0%,
+        #fef3c7 35%,
+        #ecfeff 70%,
+        #ede9fe 100%
+    );
 }
 
-.main-title {
+.title {
     text-align: center;
-    font-size: 64px;
-    font-weight: 1000;
-    color: #6d28d9;
-    text-shadow: 3px 3px 0px #fbcfe8;
-    margin-bottom: 0;
+    font-size: 52px;
+    font-weight: 900;
+    margin-top: 15px;
 }
 
 .subtitle {
     text-align: center;
     font-size: 21px;
-    font-weight: 700;
-    color: #475569;
+    font-weight: 600;
+    margin-bottom: 20px;
 }
 
 .creator {
     text-align: center;
-    color: #db2777;
-    font-weight: 800;
-    font-size: 16px;
+    font-size: 17px;
+    font-weight: 700;
     margin-bottom: 25px;
 }
 
-.hero {
-    padding: 35px;
-    border-radius: 30px;
-    text-align: center;
-    background: linear-gradient(135deg, #fce7f3, #ede9fe, #cffafe);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-    margin: 20px 0;
-}
-
-.hero h1 {
-    color: #581c87;
-    font-size: 38px;
-}
-
 .card {
-    background: rgba(255,255,255,0.88);
-    padding: 24px;
+    background: rgba(255,255,255,0.92);
+    padding: 25px;
     border-radius: 25px;
-    margin: 12px 0;
-    box-shadow: 0 8px 25px rgba(15,23,42,0.10);
-    border: 2px solid rgba(255,255,255,0.8);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.10);
+    margin-bottom: 20px;
 }
 
 .game-card {
     background: white;
-    padding: 24px;
-    border-radius: 25px;
-    min-height: 190px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.10);
-    text-align: center;
-    margin-bottom: 18px;
-}
-
-.game-card h2 {
-    color: #4c1d95;
-}
-
-.stat-card {
-    background: linear-gradient(135deg, #ffffff, #f5f3ff);
-    padding: 20px;
+    padding: 22px;
     border-radius: 22px;
     text-align: center;
+    min-height: 180px;
     box-shadow: 0 7px 20px rgba(0,0,0,0.10);
+    margin-bottom: 20px;
 }
 
-.big-number {
-    font-size: 35px;
-    font-weight: 900;
-    color: #7c3aed;
+.big-emoji {
+    font-size: 55px;
+}
+
+.center {
+    text-align: center;
 }
 
 .footer {
     text-align: center;
     padding: 35px;
-    color: #64748b;
+    color: #475569;
 }
 
-.stButton > button {
-    border-radius: 15px;
-    font-weight: 800;
-    min-height: 45px;
-}
-
-div[data-testid="stMetric"] {
-    background: white;
-    padding: 15px;
-    border-radius: 18px;
-    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -129,107 +89,43 @@ div[data-testid="stMetric"] {
 # SESSION STATE
 # ============================================================
 
-defaults = {
-    "logged_in": False,
-    "username": "",
-    "age": "",
-    "page": "🏠 Home",
-    "coins": 100,
-    "xp": 0,
-    "games_played": 0,
-    "wins": 0,
-    "best_score": 0,
-    "streak": 1,
-    "selected_game": "",
-    "xo_board": [""] * 9,
-    "xo_turn": "X",
-    "xo_message": "",
-    "memory_cards": [],
-    "memory_flipped": [],
-    "memory_matched": [],
-    "memory_score": 0,
-    "runner_score": 0,
-    "runner_started": False,
-    "quiz_score": 0,
-    "quiz_question": 0,
-    "quiz_answered": False,
-    "quiz_current": None,
-    "theme": "🌸 Pink Dream"
-}
+if "started" not in st.session_state:
+    st.session_state.started = False
 
-for key, value in defaults.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
+if "username" not in st.session_state:
+    st.session_state.username = ""
+
+if "age" not in st.session_state:
+    st.session_state.age = 0
+
+if "selected_game" not in st.session_state:
+    st.session_state.selected_game = "🎮 Game Selection"
 
 # ============================================================
-# HELPER FUNCTIONS
+# GAME LIST
 # ============================================================
 
-def add_reward(points=5, coins=5):
-    st.session_state.xp += points
-    st.session_state.coins += coins
-    st.session_state.games_played += 1
+games = [
+    "❌⭕ XO Game",
+    "🎨 Painting",
+    "🧠 Memory Challenge",
+    "🧩 Number Puzzle",
+    "🎯 Target Challenge",
+    "🐍 Snake Challenge",
+    "🚀 Space Dodge",
+    "🏃 Runner Challenge",
+    "🧱 Brick Breaker",
+    "🎈 Balloon Pop"
+]
 
-    if points > st.session_state.best_score:
-        st.session_state.best_score = points
-
-
-def reset_xo():
-    st.session_state.xo_board = [""] * 9
-    st.session_state.xo_turn = "X"
-    st.session_state.xo_message = ""
-
-
-def check_winner(board):
-    combinations = [
-        (0, 1, 2),
-        (3, 4, 5),
-        (6, 7, 8),
-        (0, 3, 6),
-        (1, 4, 7),
-        (2, 5, 8),
-        (0, 4, 8),
-        (2, 4, 6)
-    ]
-
-    for a, b, c in combinations:
-        if board[a] and board[a] == board[b] == board[c]:
-            return board[a]
-
-    if all(board):
-        return "DRAW"
-
-    return None
-
-
-def computer_xo_move():
-    empty = [
-        i for i, value in enumerate(st.session_state.xo_board)
-        if value == ""
-    ]
-
-    if empty:
-        move = random.choice(empty)
-        st.session_state.xo_board[move] = "O"
-
-
-def start_memory():
-    cards = ["🍎", "🍌", "🍇", "🍉", "🍓", "🥝"]
-    cards = cards + cards
-    random.shuffle(cards)
-
-    st.session_state.memory_cards = cards
-    st.session_state.memory_flipped = []
-    st.session_state.memory_matched = []
-    st.session_state.memory_score = 0
 # ============================================================
-# LOGIN
+# LOGIN / START
 # ============================================================
 
-if not st.session_state.logged_in:
+if not st.session_state.started:
 
     st.markdown(
-        '<div class="main-title">🎮 PLAYVERSE</div>',
+        '<div class="title">🎮 FunZone</div>',
         unsafe_allow_html=True
     )
 
@@ -243,31 +139,29 @@ if not st.session_state.logged_in:
         unsafe_allow_html=True
     )
 
-    st.markdown("""
-    <div class="hero">
-        <h1>🌈 Welcome to Your Gaming Universe!</h1>
-        <p>Mini Games • Creative Fun • Challenges • Achievements</p>
-        <p>🏃 🎨 🧩 🧠 ❌⭕ 🐍 🧱 🫧</p>
-    </div>
-    """, unsafe_allow_html=True)
-
     left, center, right = st.columns([1, 2, 1])
 
     with center:
 
-        st.markdown(
-            '<div class="card"><h2 style="text-align:center;">👤 Player Setup</h2></div>',
-            unsafe_allow_html=True
-        )
+        st.markdown("""
+        <div class="card">
+            <h1 style="text-align:center;">🌈 Welcome to FunZone!</h1>
+            <p style="text-align:center;">
+            A colorful collection of simple games for everyone.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
         username = st.text_input(
-            "🎮 Enter Username",
-            placeholder="Enter your gaming name"
+            "👤 Username",
+            placeholder="Enter your username"
         )
 
-        age = st.text_input(
-            "🎂 Enter Age",
-            placeholder="Example: 20"
+        age = st.number_input(
+            "🎂 Age",
+            min_value=3,
+            max_value=100,
+            value=18
         )
 
         if st.button(
@@ -278,375 +172,148 @@ if not st.session_state.logged_in:
             if not username.strip():
                 st.error("Please enter your username.")
 
-            elif not age.strip():
-                st.error("Please enter your age.")
-
             else:
 
                 st.session_state.username = username.strip()
-                st.session_state.age = age.strip()
-                st.session_state.logged_in = True
-                st.session_state.page = "🏠 Home"
+                st.session_state.age = age
+                st.session_state.started = True
+                st.session_state.selected_game = "🎮 Game Selection"
 
                 st.rerun()
 
     st.markdown("""
     <div class="footer">
-        <h3>🎮 PLAYVERSE</h3>
-        <p>Created by <b>Rashpreet Kaur Arora</b></p>
-        <p>All-in-One Mini Gaming Universe</p>
+        🎮 FunZone Game Hub<br>
+        Created by <b>Rashpreet Kaur Arora</b>
     </div>
     """, unsafe_allow_html=True)
 
     st.stop()
 
 # ============================================================
-# SIDEBAR
-# ============================================================
-
-st.sidebar.markdown("## 🎮 PLAYVERSE")
-
-st.sidebar.write(
-    f"👋 **{st.session_state.username}**"
-)
-
-st.sidebar.write(
-    f"🎂 Age: {st.session_state.age}"
-)
-
-st.sidebar.divider()
-
-pages = [
-    "🏠 Home",
-    "🎮 Game Hub",
-    "🏃 Endless Runner",
-    "❌⭕ XO Battle",
-    "🎨 Color Splash",
-    "🧩 Memory Match",
-    "🐍 Snake Rush",
-    "🧱 Brick Breaker",
-    "🫧 Bubble Pop",
-    "🧠 Quick Quiz",
-    "🔢 Number Challenge",
-    "🏆 Achievements",
-    "📊 Player Dashboard",
-    "🎨 Themes"
-]
-
-selected_page = st.sidebar.radio(
-    "Navigation",
-    pages,
-    index=pages.index(st.session_state.page)
-)
-
-st.session_state.page = selected_page
-
-st.sidebar.divider()
-
-if st.sidebar.button("🚪 Logout", use_container_width=True):
-    st.session_state.logged_in = False
-    st.rerun()
-
-# ============================================================
 # HEADER
 # ============================================================
 
 st.markdown(
-    '<div class="main-title">🎮 PLAYVERSE</div>',
+    '<div class="title">🎮 FunZone</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">Your Mini Gaming Universe</div>',
+    '<div class="subtitle">Play • Create • Challenge • Have Fun</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    f'<div class="creator">Created by Rashpreet Kaur Arora • Player: {st.session_state.username}</div>',
+    f'<div class="creator">👋 Welcome, {st.session_state.username} • Age {st.session_state.age}</div>',
     unsafe_allow_html=True
 )
 
 # ============================================================
-# HOME
+# SIDEBAR
 # ============================================================
 
-if st.session_state.page == "🏠 Home":
+st.sidebar.title("🎮 FunZone")
 
-    st.markdown(f"""
-    <div class="hero">
-        <h1>👋 Welcome, {st.session_state.username}!</h1>
-        <p>Ready to play something fun?</p>
-        <h2>🏆 Level {1 + st.session_state.xp // 100}</h2>
-    </div>
-    """, unsafe_allow_html=True)
+st.sidebar.write(
+    f"👤 **{st.session_state.username}**"
+)
 
-    c1, c2, c3, c4 = st.columns(4)
+st.sidebar.write(
+    f"🎂 Age: **{st.session_state.age}**"
+)
 
-    with c1:
-        st.metric("🪙 Coins", st.session_state.coins)
+st.sidebar.divider()
 
-    with c2:
-        st.metric("⭐ XP", st.session_state.xp)
+if st.sidebar.button(
+    "🏠 Game Selection",
+    use_container_width=True
+):
+    st.session_state.selected_game = "🎮 Game Selection"
+    st.rerun()
 
-    with c3:
-        st.metric("🎮 Games", st.session_state.games_played)
-
-    with c4:
-        st.metric("🏆 Wins", st.session_state.wins)
-
-    st.write("")
-
-    st.subheader("🔥 Featured Games")
-
-    cols = st.columns(3)
-
-    featured = [
-        ("🏃", "Endless Runner", "Run and collect points."),
-        ("❌⭕", "XO Battle", "Challenge the computer."),
-        ("🎨", "Color Splash", "Create your own artwork.")
-    ]
-
-    for i, item in enumerate(featured):
-
-        icon, title, description = item
-
-        with cols[i]:
-
-            st.markdown(
-                f"""
-                <div class="game-card">
-                    <h1>{icon}</h1>
-                    <h2>{title}</h2>
-                    <p>{description}</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            if st.button(
-                f"▶ Play {title}",
-                key=f"home_{i}",
-                use_container_width=True
-            ):
-                st.session_state.page = title if title != "Color Splash" else "🎨 Color Splash"
-                st.rerun()
-
-    st.subheader("🌟 Why PLAYVERSE?")
-
-    a, b, c = st.columns(3)
-
-    with a:
-        st.info("🎮 Multiple mini-games")
-
-    with b:
-        st.success("🏆 XP and achievements")
-
-    with c:
-        st.warning("🎨 Creative activities")
+if st.sidebar.button(
+    "🚪 Exit",
+    use_container_width=True
+):
+    st.session_state.started = False
+    st.session_state.selected_game = "🎮 Game Selection"
+    st.rerun()
 
 # ============================================================
-# GAME HUB
+# GAME SELECTION
 # ============================================================
 
-elif st.session_state.page == "🎮 Game Hub":
+if st.session_state.selected_game == "🎮 Game Selection":
 
-    st.header("🎮 Game Hub")
+    st.header("🎮 Choose Your Game")
 
-    games = [
-        ("🏃", "Endless Runner", "Avoid obstacles and chase a high score."),
-        ("❌⭕", "XO Battle", "Play Tic-Tac-Toe against the computer."),
-        ("🎨", "Color Splash", "Create a colorful digital drawing."),
-        ("🧩", "Memory Match", "Find matching pairs."),
-        ("🐍", "Snake Rush", "Guide the snake and collect food."),
-        ("🧱", "Brick Breaker", "Break blocks and increase your score."),
-        ("🫧", "Bubble Pop", "Pop bubbles before time runs out."),
-        ("🧠", "Quick Quiz", "Answer fun general knowledge questions."),
-        ("🔢", "Number Challenge", "Solve quick number challenges.")
-    ]
+    st.write(
+        "Select **one game**. Only that game will open."
+    )
 
-    cols = st.columns(3)
+    cols = st.columns(2)
+
+    descriptions = {
+        "❌⭕ XO Game": "Classic two-player Tic-Tac-Toe.",
+        "🎨 Painting": "Create your own colorful digital artwork.",
+        "🧠 Memory Challenge": "Test your memory.",
+        "🧩 Number Puzzle": "Guess the hidden number.",
+        "🎯 Target Challenge": "Try to hit the target.",
+        "🐍 Snake Challenge": "Classic snake-style challenge.",
+        "🚀 Space Dodge": "Avoid incoming space objects.",
+        "🏃 Runner Challenge": "Test your reaction speed.",
+        "🧱 Brick Breaker": "Break the virtual bricks.",
+        "🎈 Balloon Pop": "Pop as many balloons as possible."
+    }
 
     for i, game in enumerate(games):
 
-        icon, name, description = game
-
-        with cols[i % 3]:
+        with cols[i % 2]:
 
             st.markdown(
                 f"""
                 <div class="game-card">
-                    <h1>{icon}</h1>
-                    <h2>{name}</h2>
-                    <p>{description}</p>
+                    <div class="big-emoji">
+                    {game.split(" ")[0]}
+                    </div>
+                    <h2>{game}</h2>
+                    <p>{descriptions[game]}</p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
             if st.button(
-                f"🎮 PLAY",
-                key=f"hub_{i}",
+                f"▶ Play {game}",
+                key=f"play_{i}",
                 use_container_width=True
             ):
-                st.session_state.page = (
-                    name if name in ["🏃 Endless Runner", "❌⭕ XO Battle"]
-                    else f"{icon} {name}"
-                )
-
-                if name == "Endless Runner":
-                    st.session_state.page = "🏃 Endless Runner"
-
-                elif name == "XO Battle":
-                    st.session_state.page = "❌⭕ XO Battle"
-
-                elif name == "Color Splash":
-                    st.session_state.page = "🎨 Color Splash"
-
-                elif name == "Memory Match":
-                    st.session_state.page = "🧩 Memory Match"
-
-                elif name == "Snake Rush":
-                    st.session_state.page = "🐍 Snake Rush"
-
-                elif name == "Brick Breaker":
-                    st.session_state.page = "🧱 Brick Breaker"
-
-                elif name == "Bubble Pop":
-                    st.session_state.page = "🫧 Bubble Pop"
-
-                elif name == "Quick Quiz":
-                    st.session_state.page = "🧠 Quick Quiz"
-
-                elif name == "Number Challenge":
-                    st.session_state.page = "🔢 Number Challenge"
-
+                st.session_state.selected_game = game
                 st.rerun()
 
 # ============================================================
-# ENDLESS RUNNER
+# XO GAME
 # ============================================================
 
-elif st.session_state.page == "🏃 Endless Runner":
+elif st.session_state.selected_game == "❌⭕ XO Game":
 
-    st.header("🏃 Endless Runner")
+    st.header("❌⭕ XO Game")
 
-    st.markdown("""
-    <div class="hero">
-        <h1>🏃 RUN!</h1>
-        <p>Choose your action and build your score.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if "xo_board" not in st.session_state:
+        st.session_state.xo_board = [""] * 9
 
-    if "runner_position" not in st.session_state:
-        st.session_state.runner_position = 1
+    if "xo_turn" not in st.session_state:
+        st.session_state.xo_turn = "X"
 
-    if "runner_score_game" not in st.session_state:
-        st.session_state.runner_score_game = 0
+    if "xo_winner" not in st.session_state:
+        st.session_state.xo_winner = ""
 
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        st.metric(
-            "🏆 Score",
-            st.session_state.runner_score_game
-        )
-
-    with c2:
-        st.metric(
-            "🪙 Coins",
-            st.session_state.coins
-        )
-
-    with c3:
-        st.metric(
-            "📍 Position",
-            st.session_state.runner_position
-        )
-
-    st.progress(
-        min(
-            st.session_state.runner_score_game / 100,
-            1.0
-        )
+    st.write(
+        f"Current Turn: **{st.session_state.xo_turn}**"
     )
 
-    st.write("")
-
-    a, b, c = st.columns(3)
-
-    with a:
-        if st.button("⬅️ LEFT", use_container_width=True):
-            st.session_state.runner_position = max(
-                0,
-                st.session_state.runner_position - 1
-            )
-
-    with b:
-        if st.button("⬆️ JUMP", use_container_width=True):
-
-            points = random.randint(5, 20)
-
-            st.session_state.runner_score_game += points
-            st.session_state.coins += 2
-
-            st.success(
-                f"🪙 Great jump! +{points} points"
-            )
-
-    with c:
-        if st.button("➡️ RIGHT", use_container_width=True):
-            st.session_state.runner_position = min(
-                2,
-                st.session_state.runner_position + 1
-            )
-
-    st.write("")
-
-    if st.button("🏁 Finish Run", use_container_width=True):
-
-        score = st.session_state.runner_score_game
-
-        st.session_state.xp += score
-        st.session_state.coins += score // 5
-        st.session_state.games_played += 1
-
-        if score > st.session_state.best_score:
-            st.session_state.best_score = score
-
-        st.success(
-            f"🏆 Run completed! Score: {score}"
-        )
-
-        st.session_state.runner_score_game = 0
-
-# ============================================================
-# XO
-# ============================================================
-
-elif st.session_state.page == "❌⭕ XO Battle":
-
-    st.header("❌⭕ XO Battle")
-
-    st.info("You are ❌. Computer is ⭕.")
-
-    if not st.session_state.xo_board:
-        reset_xo()
-
-    winner = check_winner(st.session_state.xo_board)
-
-    if winner:
-
-        if winner == "X":
-            st.success("🎉 You won!")
-        elif winner == "O":
-            st.error("🤖 Computer won!")
-        else:
-            st.warning("🤝 It's a draw!")
-
-        if winner == "X":
-            st.session_state.wins += 1
-            st.session_state.coins += 20
-            st.session_state.xp += 30
+    board = st.session_state.xo_board
 
     cols = st.columns(3)
 
@@ -654,241 +321,409 @@ elif st.session_state.page == "❌⭕ XO Battle":
 
         with cols[i % 3]:
 
-            symbol = st.session_state.xo_board[i]
-
             if st.button(
-                symbol if symbol else "⬜",
+                board[i] if board[i] else " ",
                 key=f"xo_{i}",
                 use_container_width=True
             ):
 
-                if (
-                    not symbol
-                    and not winner
-                    and st.session_state.xo_turn == "X"
-                ):
+                if board[i] == "" and not st.session_state.xo_winner:
 
-                    st.session_state.xo_board[i] = "X"
+                    board[i] = st.session_state.xo_turn
 
-                    if not check_winner(
-                        st.session_state.xo_board
-                    ):
-                        computer_xo_move()
+                    wins = [
+                        [0,1,2],
+                        [3,4,5],
+                        [6,7,8],
+                        [0,3,6],
+                        [1,4,7],
+                        [2,5,8],
+                        [0,4,8],
+                        [2,4,6]
+                    ]
+
+                    for a, b, c in wins:
+
+                        if (
+                            board[a]
+                            and board[a] == board[b]
+                            and board[b] == board[c]
+                        ):
+                            st.session_state.xo_winner = board[a]
+
+                    if not st.session_state.xo_winner:
+
+                        if all(board):
+                            st.session_state.xo_winner = "DRAW"
+
+                        else:
+                            st.session_state.xo_turn = (
+                                "O"
+                                if st.session_state.xo_turn == "X"
+                                else "X"
+                            )
 
                     st.rerun()
 
-    st.write("")
+    if st.session_state.xo_winner:
 
-    if st.button(
-        "🔄 New Game",
-        use_container_width=True
-    ):
-        reset_xo()
+        if st.session_state.xo_winner == "DRAW":
+            st.warning("🤝 It's a Draw!")
+
+        else:
+            st.success(
+                f"🎉 Player {st.session_state.xo_winner} Wins!"
+            )
+
+    if st.button("🔄 Restart XO", use_container_width=True):
+
+        st.session_state.xo_board = [""] * 9
+        st.session_state.xo_turn = "X"
+        st.session_state.xo_winner = ""
         st.rerun()
-      # ============================================================
-# COLOR SPLASH
+
+    st.divider()
+
+    if st.button("⬅️ Back to Games", use_container_width=True):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
+# ============================================================
+# PAINTING
 # ============================================================
 
-elif st.session_state.page == "🎨 Color Splash":
+elif st.session_state.selected_game == "🎨 Painting":
 
-    st.header("🎨 Color Splash")
+    st.header("🎨 Mini Painting Studio")
 
-    st.markdown("""
-    <div class="hero">
-        <h1>🌈 CREATE SOMETHING BEAUTIFUL</h1>
-        <p>Choose a color and make your own digital artwork.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.write(
+        "Create your own simple digital painting."
+    )
 
     color = st.color_picker(
         "🎨 Choose Brush Color",
-        "#7C3AED"
+        "#ff4b4b"
     )
 
-    size = st.slider(
+    brush = st.slider(
         "🖌️ Brush Size",
         1,
         30,
         10
     )
 
-    drawing = st.text_area(
-        "✏️ Drawing Canvas",
-        placeholder="Describe your artwork here, or use this space as your creative canvas.",
-        height=250
+    st.info(
+        f"Selected brush size: {brush}px"
     )
 
-    c1, c2 = st.columns(2)
+    canvas = st.text_area(
+        "🎨 Your Drawing Area",
+        placeholder="Use emojis and symbols to create your art!\n\n"
+                    "🌸 🌈 ⭐ 🏠 🌳 🦋 🌻\n"
+                    "❤️ 💛 💚 💙 💜",
+        height=300
+    )
 
-    with c1:
+    if st.button(
+        "✨ Show My Artwork",
+        use_container_width=True
+    ):
+
+        st.markdown(
+            f"""
+            <div class="card">
+                <h2>🖼️ Your Artwork</h2>
+                <div style="font-size:28px; white-space:pre-wrap;">
+                {canvas if canvas else "🎨 Start creating!"}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
+# ============================================================
+# MEMORY GAME
+# ============================================================
+
+elif st.session_state.selected_game == "🧠 Memory Challenge":
+
+    st.header("🧠 Memory Challenge")
+
+    symbols = ["🍎", "🍌", "🍇", "🍓", "🍉", "🥝"]
+
+    if "memory_sequence" not in st.session_state:
+        st.session_state.memory_sequence = random.sample(
+            symbols,
+            4
+        )
+
+    if "memory_started" not in st.session_state:
+        st.session_state.memory_started = False
+
+    st.info(
+        "Remember these symbols!"
+    )
+
+    if not st.session_state.memory_started:
+
+        st.markdown(
+            f"""
+            <div class="card">
+            <h1 style="text-align:center;">
+            {" ".join(st.session_state.memory_sequence)}
+            </h1>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         if st.button(
-            "💾 Save Artwork",
+            "👀 I Remember — Start",
             use_container_width=True
         ):
-
-            if drawing.strip():
-                st.success("🎨 Artwork saved in this demo session!")
-                st.session_state.xp += 10
-                st.session_state.coins += 5
-            else:
-                st.warning("Create something first.")
-
-    with c2:
-
-        if st.button(
-            "🧹 Clear Canvas",
-            use_container_width=True
-        ):
+            st.session_state.memory_started = True
             st.rerun()
+
+    else:
+
+        answer = st.text_input(
+            "⌨️ Type the symbols in order",
+            placeholder="Example: 🍎 🍌 🍇 🍓"
+        )
+
+        if st.button(
+            "✅ Check Memory",
+            use_container_width=True
+        ):
+
+            correct = " ".join(
+                st.session_state.memory_sequence
+            )
+
+            if answer.strip() == correct:
+                st.success("🎉 Excellent Memory!")
+
+            else:
+                st.error(
+                    f"❌ Correct sequence: {correct}"
+                )
+
+    if st.button(
+        "🔄 New Memory Challenge",
+        use_container_width=True
+    ):
+
+        st.session_state.memory_sequence = random.sample(
+            symbols,
+            4
+        )
+
+        st.session_state.memory_started = False
+
+        st.rerun()
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
+# ============================================================
+# NUMBER PUZZLE
+# ============================================================
+
+elif st.session_state.selected_game == "🧩 Number Puzzle":
+
+    st.header("🧩 Number Guessing Puzzle")
+
+    if "target_number" not in st.session_state:
+        st.session_state.target_number = random.randint(
+            1,
+            20
+        )
+
+    if "attempts" not in st.session_state:
+        st.session_state.attempts = 0
+
+    st.info("Guess a number between 1 and 20.")
+
+    guess = st.number_input(
+        "🔢 Your Guess",
+        min_value=1,
+        max_value=20,
+        value=10
+    )
+
+    if st.button(
+        "🎯 Check Guess",
+        use_container_width=True
+    ):
+
+        st.session_state.attempts += 1
+
+        if guess == st.session_state.target_number:
+
+            st.success(
+                f"🎉 Correct! You found it in "
+                f"{st.session_state.attempts} attempts."
+            )
+
+        elif guess < st.session_state.target_number:
+
+            st.warning("⬆️ Try a higher number.")
+
+        else:
+
+            st.warning("⬇️ Try a lower number.")
+
+    if st.button(
+        "🔄 New Puzzle",
+        use_container_width=True
+    ):
+
+        st.session_state.target_number = random.randint(
+            1,
+            20
+        )
+
+        st.session_state.attempts = 0
+
+        st.rerun()
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
+# ============================================================
+# TARGET CHALLENGE
+# ============================================================
+
+elif st.session_state.selected_game == "🎯 Target Challenge":
+
+    st.header("🎯 Target Challenge")
+
+    if "target_score" not in st.session_state:
+        st.session_state.target_score = 0
 
     st.markdown(
         f"""
         <div class="card">
-            <h2>🖌️ Current Brush</h2>
-            <p>Color: {color}</p>
-            <p>Size: {size}px</p>
+        <h1 style="text-align:center;">
+        🎯 SCORE: {st.session_state.target_score}
+        </h1>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-# ============================================================
-# MEMORY MATCH
-# ============================================================
+    targets = [
+        "🎯",
+        "⭐",
+        "🔥",
+        "💎",
+        "🏆"
+    ]
 
-elif st.session_state.page == "🧩 Memory Match":
+    target = random.choice(targets)
 
-    st.header("🧩 Memory Match")
-
-    if not st.session_state.memory_cards:
-
-        start_memory()
-
-    st.write(
-        f"🏆 Matches: {len(st.session_state.memory_matched) // 2}/6"
+    st.markdown(
+        f"""
+        <div style="text-align:center;font-size:100px;">
+        {target}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    cols = st.columns(4)
-
-    for i, card in enumerate(
-        st.session_state.memory_cards
-    ):
-
-        with cols[i % 4]:
-
-            visible = (
-                i in st.session_state.memory_flipped
-                or i in st.session_state.memory_matched
-            )
-
-            label = card if visible else "❓"
-
-            if st.button(
-                label,
-                key=f"memory_{i}",
-                use_container_width=True
-            ):
-
-                if (
-                    i not in st.session_state.memory_flipped
-                    and i not in st.session_state.memory_matched
-                ):
-
-                    st.session_state.memory_flipped.append(i)
-
-                    if len(
-                        st.session_state.memory_flipped
-                    ) == 2:
-
-                        a, b = st.session_state.memory_flipped
-
-                        if (
-                            st.session_state.memory_cards[a]
-                            ==
-                            st.session_state.memory_cards[b]
-                        ):
-
-                            st.session_state.memory_matched.extend(
-                                [a, b]
-                            )
-
-                            st.session_state.memory_score += 10
-                            st.session_state.xp += 10
-                            st.session_state.coins += 5
-
-                            st.success("🎉 Match!")
-
-                        else:
-
-                            st.warning("Not a match.")
-
-                        st.session_state.memory_flipped = []
-
-                        st.rerun()
-
-    if len(st.session_state.memory_matched) == 12:
-
-        st.success("🏆 You completed the Memory Match!")
-
     if st.button(
-        "🔄 New Memory Game",
+        "💥 HIT TARGET!",
         use_container_width=True
     ):
 
-        start_memory()
+        st.session_state.target_score += random.randint(
+            5,
+            20
+        )
+
+        st.success("🎯 Target Hit!")
+
+        st.rerun()
+
+    if st.button(
+        "🔄 Reset Score",
+        use_container_width=True
+    ):
+
+        st.session_state.target_score = 0
+        st.rerun()
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
         st.rerun()
 
 # ============================================================
-# SNAKE
+# SNAKE CHALLENGE
 # ============================================================
 
-elif st.session_state.page == "🐍 Snake Rush":
+elif st.session_state.selected_game == "🐍 Snake Challenge":
 
-    st.header("🐍 Snake Rush")
+    st.header("🐍 Snake Challenge")
 
-    st.markdown("""
-    <div class="hero">
-        <h1>🐍 SNAKE RUSH</h1>
-        <p>Collect food and grow your score!</p>
-    </div>
-    """, unsafe_allow_html=True)
+    st.info(
+        "Mini demo version: choose a direction and collect points."
+    )
 
     if "snake_score" not in st.session_state:
         st.session_state.snake_score = 0
 
-    st.metric(
-        "🏆 Snake Score",
-        st.session_state.snake_score
-    )
-
-    directions = [
-        "⬆️ UP",
-        "⬇️ DOWN",
-        "⬅️ LEFT",
-        "➡️ RIGHT"
-    ]
-
     direction = st.radio(
-        "Choose movement",
-        directions,
-        horizontal=True
+        "🎮 Choose Direction",
+        ["⬆️ Up", "⬇️ Down", "⬅️ Left", "➡️ Right"]
     )
 
     if st.button(
-        "🍎 MOVE & COLLECT",
+        "🐍 Move",
         use_container_width=True
     ):
 
-        points = random.randint(5, 15)
+        if random.random() > 0.3:
 
-        st.session_state.snake_score += points
-        st.session_state.xp += points
-        st.session_state.coins += 2
+            st.session_state.snake_score += 1
 
-        st.success(
-            f"{direction} → 🍎 +{points} points!"
-        )
+            st.success(
+                f"🍎 Food collected! Score: "
+                f"{st.session_state.snake_score}"
+            )
+
+        else:
+
+            st.warning(
+                "💥 You hit an obstacle!"
+            )
+
+    st.metric(
+        "🐍 Score",
+        st.session_state.snake_score
+    )
 
     if st.button(
         "🔄 Restart Snake",
@@ -898,455 +733,265 @@ elif st.session_state.page == "🐍 Snake Rush":
         st.session_state.snake_score = 0
         st.rerun()
 
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
+# ============================================================
+# SPACE DODGE
+# ============================================================
+
+elif st.session_state.selected_game == "🚀 Space Dodge":
+
+    st.header("🚀 Space Dodge")
+
+    st.info(
+        "Choose your movement and try to avoid the asteroid."
+    )
+
+    movement = st.select_slider(
+        "🚀 Move Spaceship",
+        options=[
+            "⬅️ Left",
+            "⬅️ Slight Left",
+            "⏺️ Center",
+            "➡️ Slight Right",
+            "➡️ Right"
+        ]
+    )
+
+    asteroid = random.choice([
+        "⬅️",
+        "⏺️",
+        "➡️"
+    ])
+
+    st.markdown(
+        f"""
+        <div class="card">
+        <h2 style="text-align:center;">
+        ☄️ Asteroid: {asteroid}
+        </h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    if st.button(
+        "🚀 Dodge!",
+        use_container_width=True
+    ):
+
+        if (
+            ("Left" in movement and asteroid != "⬅️")
+            or
+            ("Right" in movement and asteroid != "➡️")
+            or
+            ("Center" in movement and asteroid != "⏺️")
+        ):
+
+            st.success("🎉 Great Dodge!")
+
+        else:
+
+            st.error("💥 Collision!")
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
+# ============================================================
+# RUNNER
+# ============================================================
+
+elif st.session_state.selected_game == "🏃 Runner Challenge":
+
+    st.header("🏃 Runner Challenge")
+
+    st.write(
+        "Press the button as quickly as possible!"
+    )
+
+    if "runner_score" not in st.session_state:
+        st.session_state.runner_score = 0
+
+    if st.button(
+        "🏃 RUN!",
+        use_container_width=True
+    ):
+
+        points = random.randint(1, 10)
+
+        st.session_state.runner_score += points
+
+        st.success(
+            f"⚡ You gained {points} points!"
+        )
+
+    st.metric(
+        "🏃 Score",
+        st.session_state.runner_score
+    )
+
+    if st.button(
+        "🔄 Restart",
+        use_container_width=True
+    ):
+
+        st.session_state.runner_score = 0
+        st.rerun()
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
+
 # ============================================================
 # BRICK BREAKER
 # ============================================================
 
-elif st.session_state.page == "🧱 Brick Breaker":
+elif st.session_state.selected_game == "🧱 Brick Breaker":
 
     st.header("🧱 Brick Breaker")
 
     if "brick_score" not in st.session_state:
         st.session_state.brick_score = 0
 
-    st.metric(
-        "🏆 Score",
-        st.session_state.brick_score
+    bricks = [
+        "🟥",
+        "🟧",
+        "🟨",
+        "🟩",
+        "🟦"
+    ]
+
+    st.markdown(
+        f"""
+        <div style="text-align:center;font-size:40px;">
+        {" ".join(bricks)}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.progress(
-        min(
-            st.session_state.brick_score / 100,
-            1.0
-        )
+    st.write("")
+
+    st.markdown(
+        """
+        <div style="text-align:center;font-size:50px;">
+        🏓
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
     if st.button(
-        "🏓 HIT THE BALL",
+        "💥 Hit Bricks",
         use_container_width=True
     ):
 
-        points = random.randint(5, 25)
+        broken = random.randint(1, 2)
 
-        st.session_state.brick_score += points
-        st.session_state.coins += 3
-        st.session_state.xp += points
+        st.session_state.brick_score += broken
 
         st.success(
-            f"💥 Brick destroyed! +{points}"
+            f"💥 {broken} brick(s) broken!"
         )
 
-    if st.session_state.brick_score >= 100:
-
-        st.balloons()
-
-        st.success(
-            "🏆 LEVEL COMPLETE!"
-        )
+    st.metric(
+        "🧱 Score",
+        st.session_state.brick_score
+    )
 
     if st.button(
-        "🔄 Restart Level",
+        "🔄 Restart",
         use_container_width=True
     ):
 
         st.session_state.brick_score = 0
         st.rerun()
 
-# ============================================================
-# BUBBLE POP
-# ============================================================
-
-elif st.session_state.page == "🫧 Bubble Pop":
-
-    st.header("🫧 Bubble Pop")
-
-    if "bubble_score" not in st.session_state:
-        st.session_state.bubble_score = 0
-
-    st.metric(
-        "🫧 Bubble Score",
-        st.session_state.bubble_score
-    )
-
-    bubbles = [
-        "🔴",
-        "🟢",
-        "🔵",
-        "🟡",
-        "🟣",
-        "🟠"
-    ]
-
-    cols = st.columns(3)
-
-    for i in range(12):
-
-        with cols[i % 3]:
-
-            bubble = random.choice(bubbles)
-
-            if st.button(
-                bubble,
-                key=f"bubble_{i}",
-                use_container_width=True
-            ):
-
-                points = random.randint(1, 10)
-
-                st.session_state.bubble_score += points
-                st.session_state.coins += 1
-                st.session_state.xp += points
-
-                st.rerun()
-
     if st.button(
-        "🔄 Reset Bubble Score",
+        "⬅️ Back to Games",
         use_container_width=True
     ):
 
-        st.session_state.bubble_score = 0
+        st.session_state.selected_game = "🎮 Game Selection"
         st.rerun()
 
 # ============================================================
-# QUIZ
+# BALLOON POP
 # ============================================================
 
-elif st.session_state.page == "🧠 Quick Quiz":
+elif st.session_state.selected_game == "🎈 Balloon Pop":
 
-    st.header("🧠 Quick Quiz")
+    st.header("🎈 Balloon Pop")
 
-    quiz = [
-        (
-            "Which planet is known as the Red Planet?",
-            ["Earth", "Mars", "Venus", "Jupiter"],
-            "Mars"
-        ),
-        (
-            "How many days are in a week?",
-            ["5", "6", "7", "8"],
-            "7"
-        ),
-        (
-            "Which animal is known as the King of the Jungle?",
-            ["Tiger", "Lion", "Elephant", "Bear"],
-            "Lion"
-        ),
-        (
-            "What is H2O commonly called?",
-            ["Salt", "Water", "Oxygen", "Hydrogen"],
-            "Water"
-        ),
-        (
-            "Which shape has three sides?",
-            ["Square", "Circle", "Triangle", "Rectangle"],
-            "Triangle"
-        )
-    ]
+    if "balloon_score" not in st.session_state:
+        st.session_state.balloon_score = 0
 
-    q_index = st.session_state.quiz_question % len(quiz)
-
-    question, options, correct = quiz[q_index]
+    balloon = random.choice([
+        "🎈",
+        "🎈",
+        "🎈",
+        "🎈"
+    ])
 
     st.markdown(
         f"""
-        <div class="card">
-            <h2>Question {q_index + 1}</h2>
-            <h2>{question}</h2>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    answer = st.radio(
-        "Choose your answer",
-        options,
-        key=f"quiz_radio_{q_index}_{st.session_state.quiz_question}"
-    )
-
-    if st.button(
-        "✅ Submit Answer",
-        use_container_width=True
-    ):
-
-        if answer == correct:
-
-            st.success("🎉 Correct!")
-
-            st.session_state.quiz_score += 1
-            st.session_state.xp += 10
-            st.session_state.coins += 5
-
-        else:
-
-            st.error(
-                f"❌ Correct answer: {correct}"
-            )
-
-        st.session_state.quiz_question += 1
-
-    st.metric(
-        "🏆 Quiz Score",
-        st.session_state.quiz_score
-    )
-
-    if st.button(
-        "🔄 Restart Quiz",
-        use_container_width=True
-    ):
-
-        st.session_state.quiz_score = 0
-        st.session_state.quiz_question = 0
-        st.rerun()
-
-# ============================================================
-# NUMBER CHALLENGE
-# ============================================================
-
-elif st.session_state.page == "🔢 Number Challenge":
-
-    st.header("🔢 Number Challenge")
-
-    if "number_a" not in st.session_state:
-        st.session_state.number_a = random.randint(1, 20)
-
-    if "number_b" not in st.session_state:
-        st.session_state.number_b = random.randint(1, 20)
-
-    a = st.session_state.number_a
-    b = st.session_state.number_b
-
-    st.markdown(
-        f"""
-        <div class="hero">
-            <h1>{a} + {b} = ?</h1>
-            <p>How fast can you solve it?</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    answer = st.number_input(
-        "✍️ Your Answer",
-        min_value=0,
-        step=1
-    )
-
-    if st.button(
-        "⚡ CHECK",
-        use_container_width=True
-    ):
-
-        if answer == a + b:
-
-            st.success("🎉 Correct!")
-
-            st.session_state.xp += 15
-            st.session_state.coins += 10
-
-        else:
-
-            st.error(
-                f"❌ Correct answer is {a + b}"
-            )
-
-    if st.button(
-        "🔄 New Question",
-        use_container_width=True
-    ):
-
-        st.session_state.number_a = random.randint(1, 20)
-        st.session_state.number_b = random.randint(1, 20)
-
-        st.rerun()
-
-# ============================================================
-# ACHIEVEMENTS
-# ============================================================
-
-elif st.session_state.page == "🏆 Achievements":
-
-    st.header("🏆 Achievements")
-
-    achievements = [
-        (
-            "🥇",
-            "First Step",
-            st.session_state.games_played >= 1
-        ),
-        (
-            "🎮",
-            "Game Explorer",
-            st.session_state.games_played >= 5
-        ),
-        (
-            "⭐",
-            "XP Hunter",
-            st.session_state.xp >= 100
-        ),
-        (
-            "🪙",
-            "Coin Collector",
-            st.session_state.coins >= 200
-        ),
-        (
-            "🏆",
-            "Winner",
-            st.session_state.wins >= 1
-        ),
-        (
-            "🔥",
-            "High Scorer",
-            st.session_state.best_score >= 50
-        )
-    ]
-
-    cols = st.columns(2)
-
-    for i, achievement in enumerate(achievements):
-
-        icon, title, unlocked = achievement
-
-        with cols[i % 2]:
-
-            status = "UNLOCKED ✅" if unlocked else "LOCKED 🔒"
-
-            st.markdown(
-                f"""
-                <div class="card">
-                    <h1>{icon}</h1>
-                    <h2>{title}</h2>
-                    <p>{status}</p>
-                </div>
-                """,
-                unsafe_allow_html=True
-  )
-          # ============================================================
-# PLAYER DASHBOARD
-# ============================================================
-
-elif st.session_state.page == "📊 Player Dashboard":
-
-    st.header("📊 Player Dashboard")
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-        st.metric(
-            "🪙 Coins",
-            st.session_state.coins
-        )
-
-    with c2:
-        st.metric(
-            "⭐ XP",
-            st.session_state.xp
-        )
-
-    with c3:
-        st.metric(
-            "🎮 Games",
-            st.session_state.games_played
-        )
-
-    with c4:
-        st.metric(
-            "🏆 Wins",
-            st.session_state.wins
-        )
-
-    st.write("")
-
-    level = 1 + st.session_state.xp // 100
-    level_progress = (st.session_state.xp % 100) / 100
-
-    st.subheader(f"⭐ Level {level}")
-
-    st.progress(level_progress)
-
-    st.write(
-        f"{st.session_state.xp % 100}/100 XP to next level"
-    )
-
-    st.subheader("📊 Game Activity")
-
-    activity = {
-        "Games Played": st.session_state.games_played,
-        "Wins": st.session_state.wins,
-        "XP": st.session_state.xp,
-        "Coins": st.session_state.coins
-    }
-
-    for label, value in activity.items():
-
-        st.write(f"**{label}**")
-
-        max_value = max(
-            value,
-            1
-        )
-
-        st.progress(
-            min(
-                value / max(max_value, 100),
-                1.0
-            )
-        )
-
-    st.subheader("🏆 Best Score")
-
-    st.metric(
-        "Highest Score",
-        st.session_state.best_score
-    )
-
-# ============================================================
-# THEMES
-# ============================================================
-
-elif st.session_state.page == "🎨 Themes":
-
-    st.header("🎨 Choose Your Theme")
-
-    themes = [
-        "🌸 Pink Dream",
-        "🌊 Ocean",
-        "🌌 Galaxy",
-        "🌅 Sunset",
-        "🌲 Forest",
-        "🍭 Candy",
-        "⚡ Neon"
-    ]
-
-    theme = st.selectbox(
-        "Choose a theme",
-        themes
-    )
-
-    st.session_state.theme = theme
-
-    st.markdown(
-        f"""
-        <div class="hero">
-            <h1>{theme}</h1>
-            <p>Your selected PLAYVERSE theme</p>
+        <div style="text-align:center;font-size:100px;">
+        {balloon}
         </div>
         """,
         unsafe_allow_html=True
     )
 
     if st.button(
-        "✨ Apply Theme",
+        "💥 POP!",
         use_container_width=True
     ):
 
-        st.session_state.coins = max(
-            0,
-            st.session_state.coins - 10
-        )
+        points = random.randint(1, 10)
+
+        st.session_state.balloon_score += points
 
         st.success(
-            f"{theme} selected!"
+            f"🎉 Balloon popped! +{points} points"
         )
+
+        st.rerun()
+
+    st.metric(
+        "🎈 Score",
+        st.session_state.balloon_score
+    )
+
+    if st.button(
+        "🔄 Restart",
+        use_container_width=True
+    ):
+
+        st.session_state.balloon_score = 0
+        st.rerun()
+
+    if st.button(
+        "⬅️ Back to Games",
+        use_container_width=True
+    ):
+
+        st.session_state.selected_game = "🎮 Game Selection"
+        st.rerun()
 
 # ============================================================
 # FOOTER
@@ -1354,15 +999,13 @@ elif st.session_state.page == "🎨 Themes":
 
 st.markdown("""
 <div class="footer">
-    <hr>
-    <h2>🎮 PLAYVERSE</h2>
-    <p>Play • Create • Challenge • Have Fun</p>
-    <p>Created by <b>Rashpreet Kaur Arora</b></p>
-    <p>🐍 Python • Streamlit</p>
-    <p>🎓 Educational Student Project</p>
-    <p>
-        ⚠️ This application is a student gaming prototype.
-        It does not involve real-money gambling or rewards.
-    </p>
+<hr>
+<h2>🎮 FunZone Game Hub</h2>
+<p>Play • Create • Challenge • Have Fun</p>
+<p>Created by <b>Rashpreet Kaur Arora</b></p>
+<p>Python • Streamlit</p>
+<p>🎓 Student Project</p>
 </div>
 """, unsafe_allow_html=True)
+
+    
